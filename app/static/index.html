@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JuniorGPT - Visible Thinking AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .output-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .event {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            background: #f8f9fa;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .event-type {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .event-agent {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .event-timestamp {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .event-payload {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .event.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .event.error .event-type {
+            background: #dc3545;
+        }
+
+        .event.plan {
+            border-left-color: #28a745;
+        }
+
+        .event.plan .event-type {
+            background: #28a745;
+        }
+
+        .event.evidence {
+            border-left-color: #ffc107;
+        }
+
+        .event.evidence .event-type {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .event.answer {
+            border-left-color: #17a2b8;
+        }
+
+        .event.answer .event-type {
+            background: #17a2b8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-bar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .status-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .clear-btn {
+            background: #6c757d;
+            margin-top: 10px;
+        }
+
+        .clear-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>JuniorGPT</h1>
+            <p>Visible Thinking AI Platform</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-grid">
+                <div class="status-item">
+                    <div class="status-value" id="total-events">0</div>
+                    <div class="status-label">Total Events</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value" id="current-agent">-</div>
+                    <div class="status-label">Current Agent</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-value" id="session-status">Ready</div>
+                    <div class="status-label">Status</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="input-panel">
+                <h2>Task Input</h2>
+                <form id="task-form">
+                    <div class="form-group">
+                        <label for="agent-select">Select Agent:</label>
+                        <select id="agent-select" required>
+                            <option value="analyst">Analyst - Data analysis and evidence gathering</option>
+                            <option value="strategist">Strategist - Strategic planning and high-level reasoning</option>
+                            <option value="creative">Creative - Creative problem-solving and ideation</option>
+                            <option value="logic">Logic - Logical reasoning and validation</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-input">Task or Question:</label>
+                        <textarea id="task-input" placeholder="Enter your task or question here..." required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="input-data">Input Data (JSON, optional):</label>
+                        <textarea id="input-data" placeholder='{"key": "value"}'></textarea>
+                    </div>
+
+                    <button type="submit" class="btn" id="submit-btn">Start Session</button>
+                    <button type="button" class="btn clear-btn" id="clear-btn">Clear Output</button>
+                </form>
+            </div>
+
+            <div class="output-panel">
+                <h2>Visible Thinking Events</h2>
+                <div id="events-container">
+                    <div class="loading">
+                        <p>Ready to start a session...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class JuniorGPTClient {
+            constructor() {
+                this.baseUrl = window.location.origin;
+                this.currentSession = null;
+                this.eventSource = null;
+            }
+
+            async startSession(task, agent, inputData = null) {
+                const response = await fetch(`${this.baseUrl}/session/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/event-stream'
+                    },
+                    body: JSON.stringify({
+                        task: task,
+                        agent: agent,
+                        input: inputData
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                return response.body;
+            }
+
+            async listAgents() {
+                const response = await fetch(`${this.baseUrl}/agents`);
+                return await response.json();
+            }
+
+            async listTools() {
+                const response = await fetch(`${this.baseUrl}/tools`);
+                return await response.json();
+            }
+        }
+
+        class EventDisplay {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.eventCount = 0;
+            }
+
+            addEvent(event) {
+                this.eventCount++;
+                this.updateStatus();
+
+                const eventDiv = document.createElement('div');
+                eventDiv.className = `event ${event.event_type}`;
+                
+                const timestamp = new Date(event.timestamp).toLocaleTimeString();
+                
+                eventDiv.innerHTML = `
+                    <div class="event-header">
+                        <span class="event-type">${event.event_type}</span>
+                        <span class="event-agent">${event.agent_type}</span>
+                        <span class="event-timestamp">${timestamp}</span>
+                    </div>
+                    <div class="event-payload">${this.formatPayload(event.payload)}</div>
+                `;
+
+                this.container.appendChild(eventDiv);
+                this.container.scrollTop = this.container.scrollHeight;
+            }
+
+            formatPayload(payload) {
+                if (typeof payload === 'string') {
+                    return payload;
+                }
+                return JSON.stringify(payload, null, 2);
+            }
+
+            clear() {
+                this.container.innerHTML = '<div class="loading"><p>Ready to start a session...</p></div>';
+                this.eventCount = 0;
+                this.updateStatus();
+            }
+
+            setLoading(loading) {
+                if (loading) {
+                    this.container.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            Processing...
+                        </div>
+                    `;
+                }
+            }
+
+            updateStatus() {
+                document.getElementById('total-events').textContent = this.eventCount;
+            }
+        }
+
+        // Initialize
+        const client = new JuniorGPTClient();
+        const display = new EventDisplay('events-container');
+
+        // Form handling
+        document.getElementById('task-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const task = document.getElementById('task-input').value.trim();
+            const agent = document.getElementById('agent-select').value;
+            const inputDataText = document.getElementById('input-data').value.trim();
+            
+            if (!task) {
+                alert('Please enter a task');
+                return;
+            }
+
+            let inputData = null;
+            if (inputDataText) {
+                try {
+                    inputData = JSON.parse(inputDataText);
+                } catch (e) {
+                    alert('Invalid JSON in input data');
+                    return;
+                }
+            }
+
+            // Update UI
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('current-agent').textContent = agent;
+            document.getElementById('session-status').textContent = 'Processing';
+            display.setLoading(true);
+
+            try {
+                const stream = await client.startSession(task, agent, inputData);
+                const reader = stream.getReader();
+                const decoder = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const event = JSON.parse(line.slice(6));
+                                display.addEvent(event);
+                            } catch (e) {
+                                console.error('Failed to parse event:', e);
+                            }
+                        }
+                    }
+                }
+
+                document.getElementById('session-status').textContent = 'Complete';
+            } catch (error) {
+                console.error('Session error:', error);
+                display.addEvent({
+                    event_type: 'error',
+                    agent_type: 'system',
+                    timestamp: new Date().toISOString(),
+                    payload: { error: error.message }
+                });
+                document.getElementById('session-status').textContent = 'Error';
+            } finally {
+                document.getElementById('submit-btn').disabled = false;
+            }
+        });
+
+        // Clear button
+        document.getElementById('clear-btn').addEventListener('click', () => {
+            display.clear();
+            document.getElementById('current-agent').textContent = '-';
+            document.getElementById('session-status').textContent = 'Ready';
+        });
+
+        // Load initial data
+        async function initialize() {
+            try {
+                const [agents, tools] = await Promise.all([
+                    client.listAgents(),
+                    client.listTools()
+                ]);
+                console.log('Available agents:', agents);
+                console.log('Available tools:', tools);
+            } catch (error) {
+                console.error('Failed to load initial data:', error);
+            }
+        }
+
+        initialize();
+    </script>
+</body>
+</html>

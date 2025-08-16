@@ -1,0 +1,9 @@
+backends:
+  api:
+    provider: openai
+    model: gpt-4o-mini
+
+routing:
+  default_agent: analyst
+  analyst: api
+  strategist: api

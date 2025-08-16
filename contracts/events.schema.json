@@ -1,0 +1,27 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://example.com/juniorgpt/events.schema.json",
+	"title": "JuniorGPT Event",
+	"type": "object",
+	"required": ["session_id", "agent_type", "event_type", "payload", "timestamp"],
+	"properties": {
+		"session_id": { "type": "string" },
+		"agent_type": { 
+			"type": "string", 
+			"enum": ["strategist", "analyst", "creative", "logic", "researcher", "validator", "executor", "coordinator", "synthesizer", "critic", "optimizer", "safety", "monitor", "archivist"]
+		},
+		"event_type": {
+			"type": "string",
+			"enum": [
+				"plan", "decision", "tool_call", "evidence", "answer", "error",
+				"approach", "brainstorm", "synthesis", "structure", "validation", 
+				"conclusion", "analysis", "research", "test", "optimization",
+				"coordination", "safety_check", "monitoring", "archival"
+			]
+		},
+		"payload": { "type": "object" },
+		"timestamp": { "type": "string", "format": "date-time" },
+		"trace_id": { "type": "string" },
+		"parent_trace_id": { "type": "string" }
+	}
+}
